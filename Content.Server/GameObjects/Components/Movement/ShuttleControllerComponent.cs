@@ -42,10 +42,13 @@ namespace Content.Server.GameObjects.Components.Movement
         /// <inheritdoc />
         [ViewVariables]
         public float GrabRange => 0.0f;
-
+        public bool Moving { get; set; }
         public bool Sprinting { get; set; }
+        public bool DiagonalMovementEnabled { get; set; }
+        public bool PixelMovementEnabled { get; set; }
         public Vector2 VelocityDir { get; } = Vector2.Zero;
         public GridCoordinates LastPosition { get; set; }
+        public GridCoordinates TargetPosition { get; set; }
         public float StepSoundDistance { get; set; }
 
         public void SetVelocityDirection(Direction direction, bool enabled)

@@ -9,6 +9,10 @@ namespace Content.Server.Interfaces.GameObjects.Components.Movement
     // There can only be one.
     public interface IMoverComponent : IComponent
     {
+
+        bool PixelMovementEnabled { get; set; }
+        bool DiagonalMovementEnabled { get; set; }
+
         /// <summary>
         ///     Movement speed (m/s) that the entity walks.
         /// </summary>
@@ -31,6 +35,11 @@ namespace Content.Server.Interfaces.GameObjects.Components.Movement
         float GrabRange { get; }
 
         /// <summary>
+        ///     Is the entity Moving?
+        /// </summary>
+        bool Moving { get; set; }
+
+        /// <summary>
         ///     Is the entity Sprinting (running)?
         /// </summary>
         bool Sprinting { get; set; }
@@ -41,6 +50,7 @@ namespace Content.Server.Interfaces.GameObjects.Components.Movement
         Vector2 VelocityDir { get; }
 
         GridCoordinates LastPosition { get; set; }
+        GridCoordinates TargetPosition { get; set; }
 
         float StepSoundDistance { get; set; }
 

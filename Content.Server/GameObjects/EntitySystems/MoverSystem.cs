@@ -52,6 +52,8 @@ namespace Content.Server.GameObjects.EntitySystems
         [Dependency] private readonly IEntityManager _entityManager;
 #pragma warning restore 649
 
+        public bool PixelMovementEnabled => _configurationManager.GetCVar<bool>("game.pixelmovement");
+
         private AudioSystem _audioSystem;
 
         private const float StepSoundMoveDistanceRunning = 2;
@@ -92,6 +94,7 @@ namespace Content.Server.GameObjects.EntitySystems
             _audioSystem = EntitySystemManager.GetEntitySystem<AudioSystem>();
 
             _configurationManager.RegisterCVar("game.diagonalmovement", true, CVar.ARCHIVE);
+            _configurationManager.RegisterCVar("game.pixelmovement", false, CVar.ARCHIVE);
         }
 
         private static void PlayerAttached(PlayerAttachSystemMessage ev)
@@ -181,9 +184,13 @@ namespace Content.Server.GameObjects.EntitySystems
                 }
             }
 
-            if (mover.VelocityDir.LengthSquared < 0.001 || !ActionBlockerSystem.CanMove(mover.Owner) && !weightless)
+            if(mover.LastPosition.Distance(_mapManager, mover.TargetPosition) > 0 && !mover.Moving)
+                Logger.DebugS("Movement", "Distance to target: {0}", mover.LastPosition.Distance(_mapManager, mover.TargetPosition));
+            if ((mover.VelocityDir.LengthSquared < 0.001 || !ActionBlockerSystem.CanMove(mover.Owner)) && !weightless && transform.GridPosition.Distance(_mapManager, mover.TargetPosition) <= 0)
             {
                 (physics.Controller as MoverController)?.StopMoving();
+                mover.TargetPosition = transform.GridPosition;
+                mover.Moving = false;
             }
             else
             {
@@ -193,6 +200,11 @@ namespace Content.Server.GameObjects.EntitySystems
                     transform.LocalRotation = mover.VelocityDir.GetDir().ToAngle();
                     return;
                 }
+                if(mover.LastPosition.Distance(_mapManager, mover.TargetPosition) <= 0)
+                {
+                    mover.SetVelocityDirection(transform.GridPosition.ToMapPos(_mapManager) - mover.TargetPosition.ToMapPos(_mapManager)
+                }
+
                 (physics.Controller as MoverController)?.Move(mover.VelocityDir,
                     mover.Sprinting ? mover.CurrentSprintSpeed : mover.CurrentWalkSpeed);
                 transform.LocalRotation = mover.VelocityDir.GetDir().ToAngle();
@@ -206,6 +218,15 @@ namespace Content.Server.GameObjects.EntitySystems
                 }
 
                 mover.LastPosition = transform.GridPosition;
+                if (mover.PixelMovementEnabled && !mover.Moving)
+                {
+                    mover.TargetPosition = transform.GridPosition.Offset(mover.VelocityDir);
+                    mover.Moving = true;
+                    Logger.DebugS("Movement", "Current Grid Pos: {0}", mover.LastPosition.ToString());
+                    Logger.DebugS("Movement", "Target Grid Pos: {0}", mover.TargetPosition.ToString());
+                }
+
+
                 float distanceNeeded;
                 if (mover.Sprinting)
                 {

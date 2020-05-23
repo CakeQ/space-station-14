@@ -76,6 +76,12 @@ namespace Content.Server.GameObjects.Components.Movement
         public float GrabRange => 0.2f;
 
         /// <summary>
+        ///     Is the entity moving?
+        /// </summary>
+        [ViewVariables]
+        public bool Moving { get; set; } = false;
+
+        /// <summary>
         ///     Is the entity Sprinting (running)?
         /// </summary>
         [ViewVariables]
@@ -88,13 +94,28 @@ namespace Content.Server.GameObjects.Components.Movement
         public Vector2 VelocityDir { get; private set; }
 
         public GridCoordinates LastPosition { get; set; }
+        public GridCoordinates TargetPosition { get; set; }
 
         public float StepSoundDistance { get; set; }
 
         /// <summary>
-        ///     Whether or not the player can move diagonally.
+        ///     Whether or not the entity can move diagonally.
         /// </summary>
-        [ViewVariables] public bool DiagonalMovementEnabled => _configurationManager.GetCVar<bool>("game.diagonalmovement");
+        [ViewVariables]
+        public bool DiagonalMovementEnabled { get; set; }
+
+        /// <summary>
+        ///     Whether or not the entity is using pixel movement.
+        /// </summary>
+        [ViewVariables]
+        public bool PixelMovementEnabled { get; set; }
+
+        public override void Initialize()
+        {
+            base.Initialize();
+            DiagonalMovementEnabled = _configurationManager.GetCVar<bool>("game.diagonalmovement");
+            PixelMovementEnabled = _configurationManager.GetCVar<bool>("game.pixelmovement");
+        }
 
         /// <inheritdoc />
         public override void OnAdd()

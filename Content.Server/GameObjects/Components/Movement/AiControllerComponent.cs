@@ -98,6 +98,21 @@ namespace Content.Server.GameObjects.Components.Movement
         [ViewVariables]
         public float GrabRange => 0.2f;
 
+        /// <summary>
+        ///     Whether or not the entity can move diagonally.
+        /// </summary>
+        [ViewVariables] public bool DiagonalMovementEnabled { get; set; }
+
+        /// <summary>
+        ///     Whether or not the entity is using pixel movement.
+        /// </summary>
+        [ViewVariables] public bool PixelMovementEnabled { get; set; }
+
+        /// <summary>
+        ///     Is the entity Moving?
+        /// </summary>
+        [ViewVariables]
+        public bool Moving { get; set; }
 
         /// <summary>
         ///     Is the entity Sprinting (running)?
@@ -112,6 +127,7 @@ namespace Content.Server.GameObjects.Components.Movement
         public Vector2 VelocityDir { get; set; }
 
         public GridCoordinates LastPosition { get; set; }
+        public GridCoordinates TargetPosition { get; set; }
 
         [ViewVariables(VVAccess.ReadWrite)]
         public float StepSoundDistance { get; set; }
